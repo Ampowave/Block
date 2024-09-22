@@ -4,14 +4,13 @@ using TMPro;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
-
 public class PieceGeneratorScript : MonoBehaviour
 {
     [SerializeField] private PieceData[] dataList;
     [SerializeField] private GameObject pieceBlockPrefab;
-    [SerializeField] private GameObject[] containers;
-    public GameObject[] Pieces;
+    [SerializeField] private ContainerScript[] containers;
+    [SerializeField] GameManagerScript manager;
+    public PieceHandler[] Pieces;
 
     public Vector3 IdlePieceScale;
 
@@ -30,9 +29,9 @@ public class PieceGeneratorScript : MonoBehaviour
         foreach (var container in containers)
         {
             var data = GetRandomPieceData();
-            BuildPiece(data, container.GetComponentInChildren<PieceHandler>());
-            SetPieceInContainer(container, container.GetComponentInChildren<PieceHandler>(), data);
-            container.GetComponent<ContainerScript>().IsEmpty = false;
+            BuildPiece(data, container.gameObject.GetComponentInChildren<PieceHandler>());
+            SetPieceInContainer(container.gameObject, container.gameObject.GetComponentInChildren<PieceHandler>(), data);
+            container.IsEmpty = false;
         }
     }
 
@@ -56,7 +55,7 @@ public class PieceGeneratorScript : MonoBehaviour
                     GameObject newGO = Instantiate(pieceBlockPrefab, spawnPosition, pieceBlockPrefab.transform.rotation, piece.gameObject.transform); //TODO: ObjectPool.GetObject()
                     newGO.GetComponent<PieceBlockScript>().Row = i;
                     newGO.GetComponent<PieceBlockScript>().Column = j;
-                    piece.PieceBlocks.Add(newGO);
+                    piece.PieceBlocks.Add(newGO.GetComponent<PieceBlockScript>());
                 }
                 spawnPosition.x += 1f;
             }
@@ -82,7 +81,7 @@ public class PieceGeneratorScript : MonoBehaviour
 
         foreach (var container in containers)
         {
-            result &= container.GetComponent<ContainerScript>().IsEmpty;
+            result &= container.IsEmpty;
         }
         return result;
     }
@@ -94,9 +93,9 @@ public class PieceGeneratorScript : MonoBehaviour
 
         foreach (var piece in Pieces)
         {
-            result |= piece.GetComponent<PieceHandler>().CheckIfPieceCanFit();
+            result |= piece.CheckIfPieceCanFit();
         }
         Debug.Log(result);
-        if (!result) Debug.Log("You Lose!");
+        if (!result) manager.ShowGameOverScreen();
     }
 }

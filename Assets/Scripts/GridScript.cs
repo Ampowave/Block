@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class GridScript : MonoBehaviour
 {
@@ -9,19 +8,19 @@ public class GridScript : MonoBehaviour
     public int columns = 0;
     [SerializeField] Vector3 startPosition = new Vector3(0f,0f,0f); // In case we wanna change the usual way of generating grid. (not used)
     public GameObject GridBlockPrefab;
-    public List<GameObject> GridBlockList;
-    public Dictionary<string, List<GameObject>> columnRowDictionary;
+    public List<GridBlockScript> GridBlockList;
+    public Dictionary<string, List<GridBlockScript>> columnRowDictionary;
     public List<string> ReadyToPopKeys;
     void Start()
     {
-        columnRowDictionary = new Dictionary<string, List<GameObject>>();
+        columnRowDictionary = new Dictionary<string, List<GridBlockScript>>();
         for (int i = 0;  i < rows; i++)
         {
-            columnRowDictionary.Add($"row{i}", new List<GameObject>());
+            columnRowDictionary.Add($"row{i}", new List<GridBlockScript>());
         }
         for (int i = 0; i < rows; i++)
         {
-            columnRowDictionary.Add($"column{i}", new List<GameObject>());
+            columnRowDictionary.Add($"column{i}", new List<GridBlockScript>());
         }
         SpawnGrid();
     }   
@@ -34,10 +33,10 @@ public class GridScript : MonoBehaviour
             for (int j = 0; j < columns; j++)
             {
                 currentPosition = nextPosition;
-                GameObject newGO = Instantiate(GridBlockPrefab, currentPosition, GridBlockPrefab.transform.rotation, this.gameObject.transform);
+                var newGO = Instantiate(GridBlockPrefab, currentPosition, GridBlockPrefab.transform.rotation, this.gameObject.transform).GetComponent<GridBlockScript>();
                 //Set coordinates
-                newGO.GetComponent<GridBlockScript>().row = i;
-                newGO.GetComponent<GridBlockScript>().column = j;
+                newGO.row = i;
+                newGO.column = j;
                 //Add to list
                 GridBlockList.Add(newGO);
                 columnRowDictionary[$"row{i}"].Add(newGO);
@@ -56,7 +55,7 @@ public class GridScript : MonoBehaviour
         {
             for(int j = 0; j < columnRowDictionary[$"row{i}"].Count; j++)
             {
-                if (true == columnRowDictionary[$"row{i}"][j].GetComponent<GridBlockScript>().IsOccupied)
+                if (true == columnRowDictionary[$"row{i}"][j].IsOccupied)
                     result++;
             }
             if (result == 10)
@@ -65,7 +64,7 @@ public class GridScript : MonoBehaviour
             result = 0;
             for (int j = 0; j < columnRowDictionary[$"column{i}"].Count; j++)
             {
-                if (true == columnRowDictionary[$"column{i}"][j].GetComponent<GridBlockScript>().IsOccupied)
+                if (true == columnRowDictionary[$"column{i}"][j].IsOccupied)
                     result++;
             }
             
@@ -81,7 +80,7 @@ public class GridScript : MonoBehaviour
         {
             for(int i = 0; i < columnRowDictionary[key].Count; i++)
             {
-                columnRowDictionary[key][i].GetComponent<GridBlockScript>().IsOccupied = false;
+                columnRowDictionary[key][i].IsOccupied = false;
             }          
             Debug.Log("popped");
         }

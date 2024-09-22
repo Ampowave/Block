@@ -9,7 +9,7 @@ public class PieceBlockScript : MonoBehaviour
     public int Row;
     public int Column;
 
-    public GameObject ClosestBlock = null;
+    public GridBlockScript ClosestBlock = null;
     //using OnEnable in case we implement object pooling
     private void OnEnable()
     {
